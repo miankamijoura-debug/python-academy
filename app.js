@@ -17,11 +17,12 @@ function markLesson(id,topic){const p=readProgress();const key=id+"-"+topic;if(!
 function header(title,sub,back="#home"){return `<a class="back" href="${back}">← Back</a><div class="section-head"><div><div class="eyebrow">Python Academy course</div><h2>${esc(title)}</h2><p class="muted">${esc(sub)}</p></div></div>`}
 function home(){
  const stats=progressStats();
+ const learner=readLearner();
  appRoot.innerHTML=`
- <section class="hero"><div class="hero-glow"></div><div class="eyebrow">Your practical Python learning path</div><h1>Learn Python.<br>Build what you imagine.</h1><p>Start with the basics, study clear examples, and check what you know with short chapter tests. Learn at your own pace.</p><a class="btn green" href="#chapter/1">Start learning →</a></section>
+ <section class="hero"><div class="hero-glow"></div><div class="eyebrow">Your practical Python learning path</div><h1>Learn Python.<br>Build what you imagine.</h1><p>Start with the basics, study clear examples, and check what you know with short chapter tests. Learn at your own pace.</p><a class="btn green" href="#chapter/1">Start learning →</a> <a class="btn secondary" href="#profile">Set learner name</a></section>
  <section class="stats"><div class="stat"><strong>50</strong><span>Python chapters</span></div><div class="stat"><strong>750</strong><span>Learning topics</span></div><div class="stat"><strong>6</strong><span>Questions per test</span></div><div class="stat"><strong>${stats.lessons}</strong><span>Lessons completed here</span></div></section>
  <div id="chapters" class="section-head"><div><div class="eyebrow">Course library</div><h2>Explore all chapters</h2><p class="muted">Choose a chapter to see its 15 learning topics.</p></div><input id="chapterSearch" type="search" placeholder="Search Python chapters…" aria-label="Search chapters"></div>
- <div id="chapterGrid" class="grid">${chapterCards(DATA.chapters.map((name,i)=>({name,id:i+1})))}</div>`;
+ <section class="card home-tools"><h3>Keep learning consistently</h3><p class="muted">Track lesson completion and test results on this browser. Your saved progress stays on this device.</p><div class="card-actions"><a class="btn secondary" href="#progress">View progress</a><a class="btn secondary" href="#about">About the Academy</a></div></section><div id="chapterGrid" class="grid">${chapterCards(DATA.chapters.map((name,i)=>({name,id:i+1})))}</div>`;
  const search=document.getElementById("chapterSearch");
  search.addEventListener("input",()=>{const q=search.value.toLowerCase();const items=DATA.chapters.map((name,i)=>({name,id:i+1})).filter(x=>x.name.toLowerCase().includes(q));document.getElementById("chapterGrid").innerHTML=items.length?chapterCards(items):'<div class="empty">No matching chapters.</div>'});
 }
@@ -85,6 +86,21 @@ function showProgress(){
  <button class="btn secondary" id="resetProgress" type="button">Reset saved progress</button>`;
  document.getElementById("resetProgress").addEventListener("click",()=>{if(confirm("Clear all saved lesson and test progress from this browser?")){localStorage.removeItem(PROGRESS_KEY);showProgress()}});
 }
+const LEARNER_KEY = "pythonAcademyLearnerV1";
+function readLearner(){try{return JSON.parse(localStorage.getItem(LEARNER_KEY))||{name:""}}catch{return {name:""}}}
+function showProfile(){
+ const learner=readLearner();
+ appRoot.innerHTML=header("Student profile","A private nickname stored only in this browser. This is not a secure online account.")+`
+ <div class="card profile-card"><span class="pill">LOCAL PROFILE</span><h3>Welcome to your learning space</h3><p class="muted">Choose a nickname to personalize this browser. Do not enter a password, phone number, address, or other private information. Your progress remains on this device and is not synced to other devices.</p>
+ <form id="profileForm"><label for="learnerName">Nickname</label><input id="learnerName" maxlength="24" value="${esc(learner.name)}" placeholder="e.g. PythonLearner"><button class="btn green" type="submit">Save nickname</button></form><p id="profileMessage" class="muted" aria-live="polite"></p></div>`;
+ document.getElementById("profileForm").addEventListener("submit",e=>{e.preventDefault();const name=document.getElementById("learnerName").value.trim();if(name.length>24)return;try{localStorage.setItem(LEARNER_KEY,JSON.stringify({name}));document.getElementById("profileMessage").textContent=name?"Nickname saved on this device.":"Nickname cleared."; }catch{document.getElementById("profileMessage").textContent="Your browser could not save this nickname."}});
+}
+function showAbout(){
+ appRoot.innerHTML=header("About Python Academy","A free, self-paced introduction to Python programming.")+`
+ <section class="hero about-hero"><div class="eyebrow">Our purpose</div><h1>Learn. Practise. Improve.</h1><p>Python Academy is designed to help beginners explore programming through structured chapters, short lessons, code examples, practice tasks, and chapter quizzes.</p><a class="btn green" href="#chapter/1">Begin learning →</a></section>
+ <div class="grid about-grid"><article class="card"><h3>Structured learning</h3><p>50 chapters with 15 topics each, covering Python fundamentals.</p></article><article class="card"><h3>Practice and assessment</h3><p>Each chapter includes a six-question test with automatic checking and answer explanations.</p></article><article class="card"><h3>Learn at your pace</h3><p>Lesson completion and test scores are stored locally in your browser.</p></article></div>
+ <div class="card"><h3>Important information</h3><p class="muted">This GitHub Pages version is a static website. It does not have secure online accounts or a shared student database. Progress is saved only in the current browser on the current device.</p></div>`;
+}
 function render(){
  const r=route(),page=r[0];
  if(page==="chapter")showChapter(Number(r[1]));
@@ -92,6 +108,8 @@ function render(){
  else if(page==="test")showTest(Number(r[1]));
  else if(page==="result")showResult(Number(r[1]));
  else if(page==="progress")showProgress();
+ else if(page==="profile")showProfile();
+ else if(page==="about")showAbout();
  else home();
  window.scrollTo(0,0);
 }
