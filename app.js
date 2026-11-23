@@ -20,32 +20,31 @@ function home(){
  const learner=readLearner();
  appRoot.innerHTML=`
  <section class="hero"><div class="hero-glow"></div><div class="eyebrow">Your practical Python learning path</div><h1>Learn Python.<br>Build what you imagine.</h1><p>Start with the basics, study clear examples, and check what you know with short chapter tests. Learn at your own pace.</p><a class="btn green" href="#chapter/1">Start learning →</a> <a class="btn secondary" href="#profile">Set learner name</a></section>
- <section class="stats"><div class="stat"><strong>50</strong><span>Python chapters</span></div><div class="stat"><strong>15</strong><span>Study sections per chapter</span></div><div class="stat"><strong>6</strong><span>Questions per test</span></div><div class="stat"><strong>${stats.lessons}</strong><span>Lessons completed here</span></div></section>
- <div id="chapters" class="section-head"><div><div class="eyebrow">Course library</div><h2>Explore all chapters</h2><p class="muted">Choose a chapter to see its 15 study sections.</p></div><input id="chapterSearch" type="search" placeholder="Search Python chapters…" aria-label="Search chapters"></div>
+ <section class="stats"><div class="stat"><strong>50</strong><span>Python chapters</span></div><div class="stat"><strong>50</strong><span>Chapter study guides</span></div><div class="stat"><strong>6</strong><span>Questions per test</span></div><div class="stat"><strong>${stats.lessons}</strong><span>Study guides completed here</span></div></section>
+ <div id="chapters" class="section-head"><div><div class="eyebrow">Course library</div><h2>Explore all chapters</h2><p class="muted">Choose a chapter to read its study guide and take a knowledge check.</p></div><input id="chapterSearch" type="search" placeholder="Search Python chapters…" aria-label="Search chapters"></div>
  <section class="card home-tools"><h3>Keep learning consistently</h3><p class="muted">Track lesson completion and test results on this browser. Your saved progress stays on this device.</p><div class="card-actions"><a class="btn secondary" href="#progress">View progress</a><a class="btn secondary" href="#about">About the Academy</a></div></section><div id="chapterGrid" class="grid">${chapterCards(DATA.chapters.map((name,i)=>({name,id:i+1})))}</div>`;
  const search=document.getElementById("chapterSearch");
  search.addEventListener("input",()=>{const q=search.value.toLowerCase();const items=DATA.chapters.map((name,i)=>({name,id:i+1})).filter(x=>x.name.toLowerCase().includes(q));document.getElementById("chapterGrid").innerHTML=items.length?chapterCards(items):'<div class="empty">No matching chapters.</div>'});
 }
-function chapterCards(items){return items.map(c=>{const s=chapterScore(c.id);return `<article class="card"><div class="chapter-no">Chapter ${c.id.toString().padStart(2,"0")}</div><h3>${esc(c.name)}</h3><p>15 study sections · 1 chapter test</p>${s?'<span class="pill">Best score: '+s.score+'/6</span>':'<span class="pill">Not tested yet</span>'}<div class="card-actions" style="margin-top:14px"><a class="btn" href="#chapter/${c.id}">Open chapter</a><a class="btn secondary" href="#test/${c.id}">Take test</a></div></article>`}).join("")}
+function chapterCards(items){return items.map(c=>{const score=chapterScore(c.id);return `<article class="card"><div class="chapter-no">Chapter ${c.id.toString().padStart(2,"0")}</div><h3>${esc(c.name)}</h3><p>1 study guide · 1 chapter test</p>${score?'<span class="pill">Best score: '+score.score+'/6</span>':'<span class="pill">Not tested yet</span>'}<div class="card-actions" style="margin-top:14px"><a class="btn" href="#chapter/${c.id}">Open chapter</a><a class="btn secondary" href="#test/${c.id}">Take test</a></div></article>`}).join("")}
 function showChapter(id){
  const name=DATA.chapters[id-1];if(!name){go("home");return}
- const done=readProgress().lessons;
- appRoot.innerHTML=header("Chapter "+id+": "+name,"Choose a study section, review the chapter notes, then take the six-question test.")+`
- <div class="card"><div class="card-actions"><span class="pill">15 topics</span><span class="pill">${done.filter(x=>x.startsWith(id+"-")).length}/15 completed</span></div><div style="margin-top:15px" class="progress-track"><div class="progress-fill" style="width:${done.filter(x=>x.startsWith(id+"-")).length/15*100}%"></div></div><div style="margin-top:18px"><a class="btn green" href="#test/${id}">Take chapter test →</a></div></div>
- <div class="grid">${DATA.topics.map((t,i)=>{const key=id+"-"+(i+1);return `<article class="card"><div class="chapter-no">Topic ${String(i+1).padStart(2,"0")}</div><h3>${esc(t)}</h3><p>${done.includes(key)?"Completed":"Ready to learn"}</p><a class="btn" href="#lesson/${id}/${i+1}">${done.includes(key)?"Review lesson":"Start learning"} →</a></article>`}).join("")}</div>`;
+ const completed=readProgress().lessons.some(x=>x.startsWith(id+"-"));
+ appRoot.innerHTML=header("Chapter "+id+": "+name,"Read the chapter study guide, practise the example, then take the six-question test.")+`
+ <div class="card"><div class="card-actions"><span class="pill">CHAPTER STUDY GUIDE</span><span class="pill">${completed?"Completed":"Not completed"}</span></div><p class="muted" style="margin-top:12px">This chapter has one study guide with an explanation, syntax rule, worked example, common misconception, real-world use, and practice task.</p><div class="card-actions"><a class="btn green" href="#lesson/${id}/1">Open study guide →</a><a class="btn secondary" href="#test/${id}">Take chapter test</a></div></div>`;
 }
 function showLesson(id,topic){
- const name=DATA.chapters[id-1],title=DATA.topics[topic-1],facts=DATA.quizFacts[id-1];
- if(!name||!title||!facts){go("home");return}
+ const name=DATA.chapters[id-1],facts=DATA.quizFacts[id-1];
+ if(!name||!facts){go("home");return}
  const [concept,rule,example,expected,misconception,application]=facts;
- markLesson(id,topic);
+ markLesson(id,1);
  const exercise="Create a small Python program that demonstrates this chapter idea: "+concept+" Use the syntax or rule shown above, run your program, and write down its output.";
- appRoot.innerHTML=header("Chapter "+id+": "+name,"Study section "+topic+" of 15 · "+title,"#chapter/"+id)+`
- <div class="lesson-panel"><span class="pill">STUDY SECTION ${topic} / 15</span><h2>${esc(title)}</h2><p><strong>Core idea</strong></p><p>${esc(concept)}</p><p><strong>Syntax or rule</strong></p><p>${esc(rule)}</p></div>
+ appRoot.innerHTML=header("Chapter "+id+": "+name,"Study guide · Read the notes and try the practice task.","#chapter/"+id)+`
+ <div class="lesson-panel"><span class="pill">CHAPTER STUDY GUIDE</span><h2>${esc(name)}</h2><p><strong>Core idea</strong></p><p>${esc(concept)}</p><p><strong>Syntax or rule</strong></p><p>${esc(rule)}</p></div>
  <div class="lesson-panel"><h2>Worked Python example</h2><pre class="code">${esc(example)}</pre><h3>Expected output</h3><div class="output">${esc(expected)}</div></div>
  <div class="lesson-panel"><h2>Common misconception</h2><p>${esc(misconception)}</p><p class="muted">This statement is incorrect. Check the core idea and rule above to understand why.</p><h2>Where this is useful</h2><p>${esc(application)}</p></div>
  <div class="lesson-panel"><h2>Practice exercise</h2><p>${esc(exercise)}</p><p class="muted">Try the task in a Python editor. Then compare your result with the worked example.</p></div>
- <div class="lesson-nav"><a class="btn secondary" href="#chapter/${id}">← All sections</a>${topic<15?`<a class="btn green" href="#lesson/${id}/${topic+1}">Next section →</a>`:`<a class="btn green" href="#test/${id}">Finish chapter & take test →</a>`}</div>`;
+ <div class="lesson-nav"><a class="btn secondary" href="#chapter/${id}">← Chapter overview</a><a class="btn green" href="#test/${id}">Take chapter test →</a></div>`;
 }
 function shuffle(a){const x=[...a];for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]]}return x}
 function makeQuestions(id){
@@ -81,13 +80,13 @@ function showResult(id){
 }
 function showProgress(){
  const p=readProgress(),scores=Object.entries(p.scores).sort((a,b)=>Number(a[0])-Number(b[0]));
- appRoot.innerHTML=header("My learning progress","Your completed lessons and best chapter test scores are saved in this browser.")+`
- <div class="stats"><div class="stat"><strong>${p.lessons.length}</strong><span>Lessons completed</span></div><div class="stat"><strong>${scores.length}/50</strong><span>Chapters tested</span></div><div class="stat"><strong>${scores.reduce((n,x)=>n+x[1].attempts,0)}</strong><span>Test attempts</span></div><div class="stat"><strong>${scores.length?Math.round(scores.reduce((n,x)=>n+x[1].score,0)/scores.length*100/6):0}%</strong><span>Average best score</span></div></div>
- <div class="card"><h3>Chapter scores</h3>${scores.length?scores.map(([id,s])=>`<div class="review-item"><div style="display:flex;justify-content:space-between;gap:10px"><b>Chapter ${id}: ${esc(DATA.chapters[Number(id)-1])}</b><strong>${s.score}/6</strong></div><div class="progress-track"><div class="progress-fill" style="width:${s.score/6*100}%"></div></div><small class="muted">Latest: ${s.latest}/6 · Attempts: ${s.attempts}</small></div>`).join(""):'<p class="muted">No tests completed yet. Start with Chapter 1.</p>'}</div>
+ const completedGuides=new Set(p.lessons.map(x=>x.split("-")[0])).size;
+ appRoot.innerHTML=header("My learning progress","Your completed chapter study guides and best test scores are saved in this browser.")+`
+ <div class="stats"><div class="stat"><strong>${completedGuides}</strong><span>Study guides completed</span></div><div class="stat"><strong>${scores.length}/50</strong><span>Chapters tested</span></div><div class="stat"><strong>${scores.reduce((n,x)=>n+x[1].attempts,0)}</strong><span>Test attempts</span></div><div class="stat"><strong>${scores.length?Math.round(scores.reduce((n,x)=>n+x[1].score,0)/scores.length*100/6):0}%</strong><span>Average best score</span></div></div>
+ <div class="card"><h3>Chapter scores</h3>${scores.length?scores.map(([id,score])=>`<div class="review-item"><div style="display:flex;justify-content:space-between;gap:10px"><b>Chapter ${id}: ${esc(DATA.chapters[Number(id)-1])}</b><strong>${score.score}/6</strong></div><div class="progress-track"><div class="progress-fill" style="width:${score.score/6*100}%"></div></div><small class="muted">Latest: ${score.latest}/6 · Attempts: ${score.attempts}</small></div>`).join(""):'<p class="muted">No tests completed yet. Start with Chapter 1.</p>'}</div>
  <button class="btn secondary" id="resetProgress" type="button">Reset saved progress</button>`;
  document.getElementById("resetProgress").addEventListener("click",()=>{if(confirm("Clear all saved lesson and test progress from this browser?")){localStorage.removeItem(PROGRESS_KEY);showProgress()}});
 }
-const LEARNER_KEY = "pythonAcademyLearnerV1";
 function readLearner(){try{return JSON.parse(localStorage.getItem(LEARNER_KEY))||{name:""}}catch{return {name:""}}}
 function showProfile(){
  const learner=readLearner();
@@ -98,8 +97,8 @@ function showProfile(){
 }
 function showAbout(){
  appRoot.innerHTML=header("About Python Academy","A free, self-paced introduction to Python programming.")+`
- <section class="hero about-hero"><div class="eyebrow">Our purpose</div><h1>Learn. Practise. Improve.</h1><p>Python Academy is designed to help beginners explore programming through structured chapters, short lessons, code examples, practice tasks, and chapter quizzes.</p><a class="btn green" href="#chapter/1">Begin learning →</a></section>
- <div class="grid about-grid"><article class="card"><h3>Structured learning</h3><p>50 chapters with 15 topics each, covering Python fundamentals.</p></article><article class="card"><h3>Practice and assessment</h3><p>Each chapter includes a six-question test with automatic checking and answer explanations.</p></article><article class="card"><h3>Learn at your pace</h3><p>Lesson completion and test scores are stored locally in your browser.</p></article></div>
+ <section class="hero about-hero"><div class="eyebrow">Our purpose</div><h1>Learn. Practise. Improve.</h1><p>Python Academy helps beginners explore programming through structured chapters, study guides, code examples, practice tasks, and chapter quizzes.</p><a class="btn green" href="#chapter/1">Begin learning →</a></section>
+ <div class="grid about-grid"><article class="card"><h3>Structured learning</h3><p>50 chapter study guides covering Python fundamentals.</p></article><article class="card"><h3>Practice and assessment</h3><p>Each chapter includes a six-question test with automatic checking and answer explanations.</p></article><article class="card"><h3>Learn at your pace</h3><p>Study guide completion and test scores are stored locally in your browser.</p></article></div>
  <div class="card"><h3>Important information</h3><p class="muted">This GitHub Pages version is a static website. It does not have secure online accounts or a shared student database. Progress is saved only in the current browser on the current device.</p></div>`;
 }
 function render(){
