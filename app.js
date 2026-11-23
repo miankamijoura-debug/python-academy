@@ -1,4 +1,5 @@
 const DATA = window.COURSE_DATA;
+const LEARNER_KEY = "pythonAcademyLearnerV1";
 const appRoot = document.getElementById("app");
 const PROGRESS_KEY = "pythonAcademyProgressV1";
 let activeQuiz = null;
@@ -21,6 +22,16 @@ function home(){
  appRoot.innerHTML=`
  <section class="hero"><div class="hero-glow"></div><div class="eyebrow">Your practical Python learning path</div><h1>Learn Python.<br>Build what you imagine.</h1><p>Start with the basics, study clear examples, and check what you know with short chapter tests. Learn at your own pace.</p><a class="btn green" href="#chapter/1">Start learning →</a> <a class="btn secondary" href="#profile">Set learner name</a></section>
  <section class="stats"><div class="stat"><strong>50</strong><span>Python chapters</span></div><div class="stat"><strong>50</strong><span>Chapter study guides</span></div><div class="stat"><strong>6</strong><span>Questions per test</span></div><div class="stat"><strong>${stats.lessons}</strong><span>Study guides completed here</span></div></section>
+ <section class="card seo-intro" aria-labelledby="course-intro-title">
+  <h2 id="course-intro-title">Free Python course for beginners</h2>
+  <p>Python Academy is a self-paced introduction to Python programming. It is designed for people starting from the basics and includes 50 chapter study guides, short code examples, practice tasks, and six-question chapter tests.</p>
+  <h3>What you will learn</h3>
+  <p>Start with Python syntax, variables, data types, input and output. Then practise strings and collections such as lists, tuples, sets, and dictionaries. Continue with comparison and logical operators, conditional statements, loops, functions, recursion, lambda expressions, and exception handling.</p>
+  <h3>How the lessons work</h3>
+  <p>Each chapter explains one topic, shows a worked Python example with its expected output, points out a common misconception, and gives you a practice task. You can then take a short test and review explanations for your answers.</p>
+  <p>There is no course fee and no prior Python experience is required. You can study in any modern browser. Your lesson completion and test scores are saved locally in the browser and are not shared between devices.</p>
+  <p><a href="#chapter/1">Start with Introduction to Python</a> or <a href="#chapters">browse all 50 chapters</a>.</p>
+ </section>
  <div id="chapters" class="section-head"><div><div class="eyebrow">Course library</div><h2>Explore all chapters</h2><p class="muted">Choose a chapter to read its study guide and take a knowledge check.</p></div><input id="chapterSearch" type="search" placeholder="Search Python chapters…" aria-label="Search chapters"></div>
  <section class="card home-tools"><h3>Keep learning consistently</h3><p class="muted">Track lesson completion and test results on this browser. Your saved progress stays on this device.</p><div class="card-actions"><a class="btn secondary" href="#progress">View progress</a><a class="btn secondary" href="#about">About the Academy</a></div></section><div id="chapterGrid" class="grid">${chapterCards(DATA.chapters.map((name,i)=>({name,id:i+1})))}</div>`;
  const search=document.getElementById("chapterSearch");
