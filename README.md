@@ -3,11 +3,11 @@
 A free static learning website built from the original Flask project for GitHub Pages.
 
 ## Features
-- 50 Python chapters and 15 topics per chapter (750 topics).
+- 50 beginner-focused Python chapter study guides.
 - Code examples and expected output.
 - Six-question chapter tests with randomized answer order.
 - Automatic marking, answer explanations, and Learn Again / Good / Excellent feedback.
-- Lesson completion and best test scores saved in the visitor's browser using localStorage.
+- Study guide completion and best test scores saved in the visitor's browser using localStorage.
 
 ## Publish with GitHub Pages
 1. Open the repository **Settings**.
