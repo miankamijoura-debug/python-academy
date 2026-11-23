@@ -112,7 +112,7 @@ function render(){
  else if(page==="profile")showProfile();
  else if(page==="about")showAbout();
  else home();
- window.scrollTo(0,0);
+ if(page!=="chapters")window.scrollTo(0,0);
 }
 window.addEventListener("hashchange",render);
 document.getElementById("chaptersNav").addEventListener("click",e=>{if(route()[0]==="home"){e.preventDefault();document.getElementById("chapters")?.scrollIntoView({behavior:"smooth"})}});
