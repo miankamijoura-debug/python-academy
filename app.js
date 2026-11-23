@@ -14,7 +14,6 @@ function route(){return (location.hash||"#home").slice(1).split("/")}
 function go(path){location.hash=path}
 function progressStats(){const p=readProgress();return {lessons:p.lessons.length,scores:Object.keys(p.scores).length}}
 function chapterScore(id){return readProgress().scores[id]||null}
-function markLesson(id,topic){const p=readProgress();const key=id+"-"+topic;if(!p.lessons.includes(key))p.lessons.push(key);saveProgress(p)}
 function header(title,sub,back="#home"){return `<a class="back" href="${back}">← Back</a><div class="section-head"><div><div class="eyebrow">Python Academy course</div><h2>${esc(title)}</h2><p class="muted">${esc(sub)}</p></div></div>`}
 function home(){
  const stats=progressStats();
@@ -40,22 +39,8 @@ function home(){
 function chapterCards(items){return items.map(c=>{const score=chapterScore(c.id);return `<article class="card"><div class="chapter-no">Chapter ${c.id.toString().padStart(2,"0")}</div><h3>${esc(c.name)}</h3><p>${(DATA.chapterTopics?.[c.id-1]||[]).length} topics · 1 chapter test</p>${score?'<span class="pill">Best score: '+score.score+'/6</span>':'<span class="pill">Not tested yet</span>'}<div class="card-actions" style="margin-top:14px"><a class="btn" href="#chapter/${c.id}">View topics</a><a class="btn secondary" href="#test/${c.id}">Take test</a></div></article>`}).join("")}
 function showChapter(id){
  const name=DATA.chapters[id-1];if(!name){go("home");return}
- const completed=readProgress().lessons.some(x=>x.startsWith(id+"-"));
  appRoot.innerHTML=header("Chapter "+id+": "+name,"Browse this chapter’s topics, then take the six-question test.")+`
  <div class="card"><div class="card-actions"><span class="pill">CHAPTER TOPICS</span></div><p class="muted" style="margin-top:12px">Explore the ${(DATA.chapterTopics?.[id-1]||[]).length} topics in this chapter:</p><ul class="topic-list">${(DATA.chapterTopics?.[id-1]||[]).map(t=>`<li>${esc(t)}</li>`).join("")}</ul><div class="card-actions"><a class="btn secondary" href="#test/${id}">Take chapter test</a></div></div>`;
-}
-function showLesson(id,topic){
- const name=DATA.chapters[id-1],facts=DATA.quizFacts[id-1];
- if(!name||!facts){go("home");return}
- const [concept,rule,example,expected,misconception,application]=facts;
- markLesson(id,1);
- const exercise="Create a small Python program that demonstrates this chapter idea: "+concept+" Use the syntax or rule shown above, run your program, and write down its output.";
- appRoot.innerHTML=header("Chapter "+id+": "+name,"Topic overview","#chapter/"+id)+`
- <div class="lesson-panel"><span class="pill">CHAPTER STUDY GUIDE</span><h2>${esc(name)}</h2><p><strong>Core idea</strong></p><p>${esc(concept)}</p><p><strong>Syntax or rule</strong></p><p>${esc(rule)}</p><h3>Topics covered in this chapter</h3><ul class="topic-list">${(DATA.chapterTopics?.[id-1]||[]).map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
- <div class="lesson-panel"><h2>Worked Python example</h2><pre class="code">${esc(example)}</pre><h3>Expected output</h3><div class="output">${esc(expected)}</div></div>
- <div class="lesson-panel"><h2>Common misconception</h2><p>${esc(misconception)}</p><p class="muted">This statement is incorrect. Check the core idea and rule above to understand why.</p><h2>Where this is useful</h2><p>${esc(application)}</p></div>
- <div class="lesson-panel"><h2>Practice exercise</h2><p>${esc(exercise)}</p><p class="muted">Try the task in a Python editor. Then compare your result with the worked example.</p></div>
- <div class="lesson-nav"><a class="btn secondary" href="#chapter/${id}">← Chapter overview</a><a class="btn green" href="#test/${id}">Take chapter test →</a></div>`;
 }
 function shuffle(a){const x=[...a];for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]]}return x}
 function makeQuestions(id){
@@ -91,7 +76,6 @@ function showResult(id){
 }
 function showProgress(){
  const p=readProgress(),scores=Object.entries(p.scores).sort((a,b)=>Number(a[0])-Number(b[0]));
- const completedGuides=0;
  appRoot.innerHTML=header("My learning progress","Your chapter test scores are saved in this browser.")+`
  <div class="stats"><div class="stat"><strong>250</strong><span>Topics available</span></div><div class="stat"><strong>${scores.length}/50</strong><span>Chapters tested</span></div><div class="stat"><strong>${scores.reduce((n,x)=>n+x[1].attempts,0)}</strong><span>Test attempts</span></div><div class="stat"><strong>${scores.length?Math.round(scores.reduce((n,x)=>n+x[1].score,0)/scores.length*100/6):0}%</strong><span>Average best score</span></div></div>
  <div class="card"><h3>Chapter scores</h3>${scores.length?scores.map(([id,score])=>`<div class="review-item"><div style="display:flex;justify-content:space-between;gap:10px"><b>Chapter ${id}: ${esc(DATA.chapters[Number(id)-1])}</b><strong>${score.score}/6</strong></div><div class="progress-track"><div class="progress-fill" style="width:${score.score/6*100}%"></div></div><small class="muted">Latest: ${score.latest}/6 · Attempts: ${score.attempts}</small></div>`).join(""):'<p class="muted">No tests completed yet. Start with Chapter 1.</p>'}</div>
@@ -115,7 +99,6 @@ function showAbout(){
 function render(){
  const r=route(),page=r[0];
  if(page==="chapter")showChapter(Number(r[1]));
- else if(page==="lesson")showLesson(Number(r[1]),Number(r[2]));
  else if(page==="test")showTest(Number(r[1]));
  else if(page==="result")showResult(Number(r[1]));
  else if(page==="chapters"){home();document.getElementById("chapters")?.scrollIntoView({behavior:"smooth"})}
