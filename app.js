@@ -42,7 +42,7 @@ function showChapter(id){
  const name=DATA.chapters[id-1];if(!name){go("home");return}
  const completed=readProgress().lessons.some(x=>x.startsWith(id+"-"));
  appRoot.innerHTML=header("Chapter "+id+": "+name,"Read the chapter study guide, practise the example, then take the six-question test.")+`
- <div class="card"><div class="card-actions"><span class="pill">CHAPTER STUDY GUIDE</span><span class="pill">${completed?"Completed":"Not completed"}</span></div><p class="muted" style="margin-top:12px">This chapter has one study guide with an explanation, syntax rule, worked example, common misconception, real-world use, and practice task.</p><div class="card-actions"><a class="btn green" href="#lesson/${id}/1">Open study guide →</a><a class="btn secondary" href="#test/${id}">Take chapter test</a></div></div>`;
+ <div class="card"><div class="card-actions"><span class="pill">CHAPTER STUDY GUIDE</span><span class="pill">${completed?"Completed":"Not completed"}</span></div><p class="muted" style="margin-top:12px">This chapter includes ${(DATA.chapterTopics?.[id-1]||[]).length} focused topic areas, a clear explanation, worked example, common mistakes, practical uses, and a practice task.</p><ul class="topic-list">${(DATA.chapterTopics?.[id-1]||[]).map(t=>`<li>${esc(t)}</li>`).join("")}</ul><div class="card-actions"><a class="btn green" href="#lesson/${id}/1">Open study guide →</a><a class="btn secondary" href="#test/${id}">Take chapter test</a></div></div>`;
 }
 function showLesson(id,topic){
  const name=DATA.chapters[id-1],facts=DATA.quizFacts[id-1];
@@ -51,7 +51,7 @@ function showLesson(id,topic){
  markLesson(id,1);
  const exercise="Create a small Python program that demonstrates this chapter idea: "+concept+" Use the syntax or rule shown above, run your program, and write down its output.";
  appRoot.innerHTML=header("Chapter "+id+": "+name,"Study guide · Read the notes and try the practice task.","#chapter/"+id)+`
- <div class="lesson-panel"><span class="pill">CHAPTER STUDY GUIDE</span><h2>${esc(name)}</h2><p><strong>Core idea</strong></p><p>${esc(concept)}</p><p><strong>Syntax or rule</strong></p><p>${esc(rule)}</p></div>
+ <div class="lesson-panel"><span class="pill">CHAPTER STUDY GUIDE</span><h2>${esc(name)}</h2><p><strong>Core idea</strong></p><p>${esc(concept)}</p><p><strong>Syntax or rule</strong></p><p>${esc(rule)}</p><h3>Topics covered in this chapter</h3><ul class="topic-list">${(DATA.chapterTopics?.[id-1]||[]).map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
  <div class="lesson-panel"><h2>Worked Python example</h2><pre class="code">${esc(example)}</pre><h3>Expected output</h3><div class="output">${esc(expected)}</div></div>
  <div class="lesson-panel"><h2>Common misconception</h2><p>${esc(misconception)}</p><p class="muted">This statement is incorrect. Check the core idea and rule above to understand why.</p><h2>Where this is useful</h2><p>${esc(application)}</p></div>
  <div class="lesson-panel"><h2>Practice exercise</h2><p>${esc(exercise)}</p><p class="muted">Try the task in a Python editor. Then compare your result with the worked example.</p></div>
