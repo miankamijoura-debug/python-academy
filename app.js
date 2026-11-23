@@ -107,6 +107,7 @@ function render(){
  else if(page==="lesson")showLesson(Number(r[1]),Number(r[2]));
  else if(page==="test")showTest(Number(r[1]));
  else if(page==="result")showResult(Number(r[1]));
+ else if(page==="chapters"){home();document.getElementById("chapters")?.scrollIntoView({behavior:"smooth"})}
  else if(page==="progress")showProgress();
  else if(page==="profile")showProfile();
  else if(page==="about")showAbout();
