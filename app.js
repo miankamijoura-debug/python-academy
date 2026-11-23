@@ -21,28 +21,28 @@ function home(){
  const learner=readLearner();
  appRoot.innerHTML=`
  <section class="hero"><div class="hero-glow"></div><div class="eyebrow">Your practical Python learning path</div><h1>Learn Python.<br>Build what you imagine.</h1><p>Start with the basics, study clear examples, and check what you know with short chapter tests. Learn at your own pace.</p><a class="btn green" href="#chapter/1">Start learning →</a> <a class="btn secondary" href="#profile">Set learner name</a></section>
- <section class="stats"><div class="stat"><strong>50</strong><span>Python chapters</span></div><div class="stat"><strong>50</strong><span>Chapter study guides</span></div><div class="stat"><strong>6</strong><span>Questions per test</span></div><div class="stat"><strong>${stats.lessons}</strong><span>Study guides completed here</span></div></section>
+ <section class="stats"><div class="stat"><strong>50</strong><span>Python chapters</span></div><div class="stat"><strong>250</strong><span>Individual topics</span></div><div class="stat"><strong>6</strong><span>Questions per test</span></div><div class="stat"><strong>${stats.scores}</strong><span>Chapter tests completed</span></div></section>
  <section class="card seo-intro" aria-labelledby="course-intro-title">
   <h2 id="course-intro-title">Free Python course for beginners</h2>
-  <p>Python Academy is a self-paced introduction to Python programming. It is designed for people starting from the basics and includes 50 chapter study guides, short code examples, practice tasks, and six-question chapter tests.</p>
+  <p>Python Academy is a self-paced introduction to Python programming. It is designed for people starting from the basics and includes 250 focused topics across 50 chapters, code examples, and six-question chapter tests.</p>
   <h3>What you will learn</h3>
   <p>Start with Python syntax, variables, data types, input and output. Then practise strings and collections such as lists, tuples, sets, and dictionaries. Continue with comparison and logical operators, conditional statements, loops, functions, recursion, lambda expressions, and exception handling.</p>
   <h3>How the lessons work</h3>
-  <p>Each chapter explains one topic, shows a worked Python example with its expected output, points out a common misconception, and gives you a practice task. You can then take a short test and review explanations for your answers.</p>
+  <p>Each chapter is organised as a list of focused topics. Choose a chapter to browse its topics, then use the chapter test to check your understanding.</p>
   <p>There is no course fee and no prior Python experience is required. You can study in any modern browser. Your lesson completion and test scores are saved locally in the browser and are not shared between devices.</p>
   <p><a href="#chapter/1">Start with Introduction to Python</a> or <a href="#chapters">browse all 50 chapters</a>.</p>
  </section>
- <div id="chapters" class="section-head"><div><div class="eyebrow">Course library</div><h2>Explore all chapters</h2><p class="muted">Choose a chapter to read its study guide and take a knowledge check.</p></div><input id="chapterSearch" type="search" placeholder="Search Python chapters…" aria-label="Search chapters"></div>
+ <div id="chapters" class="section-head"><div><div class="eyebrow">Course library</div><h2>Explore all chapters</h2><p class="muted">Choose a chapter to browse its topics and take a knowledge check.</p></div><input id="chapterSearch" type="search" placeholder="Search Python chapters…" aria-label="Search chapters"></div>
  <section class="card home-tools"><h3>Keep learning consistently</h3><p class="muted">Track lesson completion and test results on this browser. Your saved progress stays on this device.</p><div class="card-actions"><a class="btn secondary" href="#progress">View progress</a><a class="btn secondary" href="#about">About the Academy</a></div></section><div id="chapterGrid" class="grid">${chapterCards(DATA.chapters.map((name,i)=>({name,id:i+1})))}</div>`;
  const search=document.getElementById("chapterSearch");
  search.addEventListener("input",()=>{const q=search.value.toLowerCase();const items=DATA.chapters.map((name,i)=>({name,id:i+1})).filter(x=>x.name.toLowerCase().includes(q));document.getElementById("chapterGrid").innerHTML=items.length?chapterCards(items):'<div class="empty">No matching chapters.</div>'});
 }
-function chapterCards(items){return items.map(c=>{const score=chapterScore(c.id);return `<article class="card"><div class="chapter-no">Chapter ${c.id.toString().padStart(2,"0")}</div><h3>${esc(c.name)}</h3><p>1 study guide · 1 chapter test</p>${score?'<span class="pill">Best score: '+score.score+'/6</span>':'<span class="pill">Not tested yet</span>'}<div class="card-actions" style="margin-top:14px"><a class="btn" href="#chapter/${c.id}">Open chapter</a><a class="btn secondary" href="#test/${c.id}">Take test</a></div></article>`}).join("")}
+function chapterCards(items){return items.map(c=>{const score=chapterScore(c.id);return `<article class="card"><div class="chapter-no">Chapter ${c.id.toString().padStart(2,"0")}</div><h3>${esc(c.name)}</h3><p>${(DATA.chapterTopics?.[c.id-1]||[]).length} topics · 1 chapter test</p>${score?'<span class="pill">Best score: '+score.score+'/6</span>':'<span class="pill">Not tested yet</span>'}<div class="card-actions" style="margin-top:14px"><a class="btn" href="#chapter/${c.id}">Open chapter</a><a class="btn secondary" href="#test/${c.id}">Take test</a></div></article>`}).join("")}
 function showChapter(id){
  const name=DATA.chapters[id-1];if(!name){go("home");return}
  const completed=readProgress().lessons.some(x=>x.startsWith(id+"-"));
- appRoot.innerHTML=header("Chapter "+id+": "+name,"Read the chapter study guide, practise the example, then take the six-question test.")+`
- <div class="card"><div class="card-actions"><span class="pill">CHAPTER STUDY GUIDE</span><span class="pill">${completed?"Completed":"Not completed"}</span></div><p class="muted" style="margin-top:12px">This chapter includes ${(DATA.chapterTopics?.[id-1]||[]).length} focused topic areas, a clear explanation, worked example, common mistakes, practical uses, and a practice task.</p><ul class="topic-list">${(DATA.chapterTopics?.[id-1]||[]).map(t=>`<li>${esc(t)}</li>`).join("")}</ul><div class="card-actions"><a class="btn green" href="#lesson/${id}/1">Open study guide →</a><a class="btn secondary" href="#test/${id}">Take chapter test</a></div></div>`;
+ appRoot.innerHTML=header("Chapter "+id+": "+name,"Browse this chapter’s topics, then take the six-question test.")+`
+ <div class="card"><div class="card-actions"><span class="pill">CHAPTER TOPICS</span><span class="pill">${completed?"Completed":"Not completed"}</span></div><p class="muted" style="margin-top:12px">Explore the ${(DATA.chapterTopics?.[id-1]||[]).length} topics in this chapter:</p><ul class="topic-list">${(DATA.chapterTopics?.[id-1]||[]).map(t=>`<li>${esc(t)}</li>`).join("")}</ul><div class="card-actions"><a class="btn secondary" href="#test/${id}">Take chapter test</a></div></div>`;
 }
 function showLesson(id,topic){
  const name=DATA.chapters[id-1],facts=DATA.quizFacts[id-1];
@@ -50,7 +50,7 @@ function showLesson(id,topic){
  const [concept,rule,example,expected,misconception,application]=facts;
  markLesson(id,1);
  const exercise="Create a small Python program that demonstrates this chapter idea: "+concept+" Use the syntax or rule shown above, run your program, and write down its output.";
- appRoot.innerHTML=header("Chapter "+id+": "+name,"Study guide · Read the notes and try the practice task.","#chapter/"+id)+`
+ appRoot.innerHTML=header("Chapter "+id+": "+name,"Topic overview","#chapter/"+id)+`
  <div class="lesson-panel"><span class="pill">CHAPTER STUDY GUIDE</span><h2>${esc(name)}</h2><p><strong>Core idea</strong></p><p>${esc(concept)}</p><p><strong>Syntax or rule</strong></p><p>${esc(rule)}</p><h3>Topics covered in this chapter</h3><ul class="topic-list">${(DATA.chapterTopics?.[id-1]||[]).map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
  <div class="lesson-panel"><h2>Worked Python example</h2><pre class="code">${esc(example)}</pre><h3>Expected output</h3><div class="output">${esc(expected)}</div></div>
  <div class="lesson-panel"><h2>Common misconception</h2><p>${esc(misconception)}</p><p class="muted">This statement is incorrect. Check the core idea and rule above to understand why.</p><h2>Where this is useful</h2><p>${esc(application)}</p></div>
@@ -108,8 +108,8 @@ function showProfile(){
 }
 function showAbout(){
  appRoot.innerHTML=header("About Python Academy","A free, self-paced introduction to Python programming.")+`
- <section class="hero about-hero"><div class="eyebrow">Our purpose</div><h1>Learn. Practise. Improve.</h1><p>Python Academy helps beginners explore programming through structured chapters, study guides, code examples, practice tasks, and chapter quizzes.</p><a class="btn green" href="#chapter/1">Begin learning →</a></section>
- <div class="grid about-grid"><article class="card"><h3>Structured learning</h3><p>50 chapter study guides covering Python fundamentals.</p></article><article class="card"><h3>Practice and assessment</h3><p>Each chapter includes a six-question test with automatic checking and answer explanations.</p></article><article class="card"><h3>Learn at your pace</h3><p>Study guide completion and test scores are stored locally in your browser.</p></article></div>
+ <section class="hero about-hero"><div class="eyebrow">Our purpose</div><h1>Learn. Practise. Improve.</h1><p>Python Academy helps beginners explore programming through structured chapters, topic lists, code examples, and chapter quizzes.</p><a class="btn green" href="#chapter/1">Begin learning →</a></section>
+ <div class="grid about-grid"><article class="card"><h3>Structured learning</h3><p>50 chapters organised into 250 focused Python topics.</p></article><article class="card"><h3>Practice and assessment</h3><p>Each chapter includes a six-question test with automatic checking and answer explanations.</p></article><article class="card"><h3>Learn at your pace</h3><p>Study guide completion and test scores are stored locally in your browser.</p></article></div>
  <div class="card"><h3>Important information</h3><p class="muted">This GitHub Pages version is a static website. It does not have secure online accounts or a shared student database. Progress is saved only in the current browser on the current device.</p></div>`;
 }
 function render(){
