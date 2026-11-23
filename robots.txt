@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://miankamijoura-debug.github.io/python-academy/sitemap.xml
